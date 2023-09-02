@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Accounts {
+  Id                  Int                   @id(map: "PK_Accounts") @default(autoincrement())
+  Email               String?               @db.VarChar(255)
+  Password            String?               @db.VarChar(255)
+  FirstName           String?               @db.VarChar(255)
+  LastName            String?               @db.VarChar(255)
+  Role                Int
+  CreatedDate         DateTime              @db.Timestamp(6)
+  UpdatedDate         DateTime?             @db.Timestamp(6)
+  ResetToken          String?               @db.VarChar(255)
+  ResetTokenExpires   DateTime?             @db.Timestamp(6)
+  PasswordReset       DateTime?             @db.Timestamp(6)
+  DeviceId            String?               @db.VarChar(255)
+  ImageUrl            String?
+  ActivityHistories   ActivityHistories[]
+  ActivityResult      ActivityResult[]
+  ActivityUserTargets ActivityUserTargets[]
+  RefreshToken        RefreshToken[]
+  TargetConfigs       TargetConfigs[]
+}
+
+model ActivityHistories {
+  Id           String    @id(map: "PK_ActivityHistories") @db.Uuid
+  ActivityName String?   @db.VarChar(255)
+  Qty          Int
+  Unit         String?   @db.VarChar(255)
+  Date         DateTime  @db.Timestamp(6)
+  IsFix        Boolean
+  CreatedDate  DateTime  @db.Timestamp(6)
+  UpdatedDate  DateTime? @db.Timestamp(6)
+  AccountId    Int
+  Accounts     Accounts  @relation(fields: [AccountId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ActivityHistories_Accounts_AccountId")
+
+  @@index([AccountId], map: "IX_ActivityHistories_AccountId")
+}
+
+model ActivityResult {
+  Id          String     @id(map: "PK_ActivityResult") @db.Uuid
+  CriteriaId  String     @db.Uuid
+  CategoryId  String     @db.Uuid
+  AccountId   Int
+  Date        DateTime   @db.Timestamp(6)
+  IsComplete  Boolean
+  CreatedDate DateTime   @db.Timestamp(6)
+  UpdatedDate DateTime?  @db.Timestamp(6)
+  Accounts    Accounts   @relation(fields: [AccountId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ActivityResult_Accounts_AccountId")
+  Categories  Categories @relation(fields: [CategoryId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ActivityResult_Categories_CategoryId")
+  Criterias   Criterias  @relation(fields: [CriteriaId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ActivityResult_Criterias_CriteriaId")
+
+  @@index([AccountId], map: "IX_ActivityResult_AccountId")
+  @@index([CategoryId], map: "IX_ActivityResult_CategoryId")
+  @@index([CriteriaId], map: "IX_ActivityResult_CriteriaId")
+}
+
+model ActivityUserTargets {
+  Id           String    @id(map: "PK_ActivityUserTargets") @db.Uuid
+  ActivityName String?   @db.VarChar(255)
+  TargetQty    Int
+  Unit         String?   @db.VarChar(255)
+  Date         DateTime  @db.Timestamp(6)
+  CreatedDate  DateTime  @db.Timestamp(6)
+  UpdatedDate  DateTime? @db.Timestamp(6)
+  AccountId    Int
+  Accounts     Accounts  @relation(fields: [AccountId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ActivityUserTargets_Accounts_AccountId")
+
+  @@index([AccountId], map: "IX_ActivityUserTargets_AccountId")
+}
+
+model Advices {
+  Id          String     @id(map: "PK_Advices") @db.Uuid
+  Subject     String?    @db.VarChar(255)
+  Url         String?    @db.VarChar(255)
+  IsActive    Boolean
+  CreatedDate DateTime   @db.Timestamp(6)
+  UpdatedDate DateTime?  @db.Timestamp(6)
+  CreatedBy   String?    @db.VarChar(30)
+  UpdatedBy   String?    @db.VarChar(30)
+  CategoryId  String     @db.Uuid
+  Categories  Categories @relation(fields: [CategoryId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Advices_Categories_CategoryId")
+
+  @@index([CategoryId], map: "IX_Advices_CategoryId")
+}
+
+model Categories {
+  Id              String           @id(map: "PK_Categories") @db.Uuid
+  CategoryName    String?          @db.VarChar(255)
+  Description     String?          @db.VarChar(255)
+  CategoryOrderId Int
+  IsActive        Boolean
+  CreatedDate     DateTime         @db.Timestamp(6)
+  UpdatedDate     DateTime?        @db.Timestamp(6)
+  CreatedBy       String?          @db.VarChar(30)
+  UpdatedBy       String?          @db.VarChar(30)
+  ActivityResult  ActivityResult[]
+  Advices         Advices[]
+  Criterias       Criterias[]
+}
+
+model Criterias {
+  Id             String           @id(map: "PK_Criterias") @db.Uuid
+  Subject        String?          @db.VarChar(255)
+  Qty            Float
+  Unit           String?          @db.VarChar(255)
+  IsActive       Boolean
+  IsFix          Boolean
+  IsComplete     Boolean
+  CreatedDate    DateTime         @db.Timestamp(6)
+  UpdatedDate    DateTime?        @db.Timestamp(6)
+  CreatedBy      String?
+  UpdatedBy      String?
+  CategoryId     String           @db.Uuid
+  ActivityResult ActivityResult[]
+  Categories     Categories       @relation(fields: [CategoryId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Criterias_Categories_CategoryId")
+  TargetConfigs  TargetConfigs[]
+
+  @@index([CategoryId], map: "IX_Criterias_CategoryId")
+}
+
+model RefreshToken {
+  Id              String    @id(map: "PK_RefreshToken") @db.Uuid
+  AccountId       Int?
+  Token           String?
+  Expires         DateTime  @db.Timestamp(6)
+  Created         DateTime  @db.Timestamp(6)
+  CreatedByIp     String?
+  Revoked         DateTime? @db.Timestamp(6)
+  RevokedByIp     String?
+  ReplacedByToken String?
+  ReasonRevoked   String?
+  Accounts        Accounts? @relation(fields: [AccountId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_RefreshToken_Accounts_AccountId")
+
+  @@index([AccountId], map: "IX_RefreshToken_AccountId")
+}
+
+model TargetConfigs {
+  Id          String    @id(map: "PK_TargetConfigs") @db.Uuid
+  CriteriaId  String    @db.Uuid
+  AccountId   Int
+  IsTarget    Boolean
+  CreatedDate DateTime  @db.Timestamp(6)
+  UpdatedDate DateTime? @db.Timestamp(6)
+  Accounts    Accounts  @relation(fields: [AccountId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TargetConfigs_Accounts_AccountId")
+  Criterias   Criterias @relation(fields: [CriteriaId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TargetConfigs_Criterias_CriteriaId")
+
+  @@index([AccountId], map: "IX_TargetConfigs_AccountId")
+  @@index([CriteriaId], map: "IX_TargetConfigs_CriteriaId")
+}
+
+model EFMigrationsHistory {
+  MigrationId    String @id(map: "PK___EFMigrationsHistory") @db.VarChar(150)
+  ProductVersion String @db.VarChar(32)
+
+  @@map("__EFMigrationsHistory")
+}
