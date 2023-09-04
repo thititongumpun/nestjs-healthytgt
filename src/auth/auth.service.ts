@@ -19,7 +19,7 @@ export class AuthService {
     if (!isMatch) {
       throw new HttpException('User or password is incorrect', 401);
     }
-    const payload = { sub: user.Id, email: user.Email };
+    const payload = user;
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

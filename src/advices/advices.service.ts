@@ -6,14 +6,14 @@ import { PrismaService } from 'src/providers/prisma/prisma.module';
 export class AdvicesService {
   constructor(private prisma: PrismaService) {}
 
-  async getAdvices(categoryId: string): Promise<Advices[] | null> {
+  async getAdvices(categoryId: number): Promise<Advices[] | null> {
     return this.prisma.advices.findMany({
       include: {
         Categories: true,
       },
       where: {
         Categories: {
-          CategoryOrderId: Number(categoryId),
+          CategoryOrderId: categoryId,
         },
       },
     });
