@@ -15,6 +15,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PrismaModule } from './providers/prisma/prisma.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { TargetconfigModule } from './targetconfig/targetconfig.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     AccountsModule,
     NotificationsModule,
+    TargetconfigModule,
   ],
   controllers: [AppController],
   providers: [
