@@ -1,5 +1,6 @@
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import { TargetconfigService } from './targetconfig.service';
-import { Controller, Get, Request } from '@nestjs/common';
+import { Controller, Get, Request, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth()
@@ -8,6 +9,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
   path: 'targetconfig',
   version: '1',
 })
+@UseInterceptors(CacheInterceptor)
 export class TargetConfigController {
   constructor(private readonly targetconfigService: TargetconfigService) {}
 
