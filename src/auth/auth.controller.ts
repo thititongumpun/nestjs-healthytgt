@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Request,
   UseGuards,
@@ -12,24 +10,27 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { AuthGuard } from './auth.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AccountDto } from 'src/accounts/dto/account.dto';
+// import { LocalAuthGuard } from './local-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { Public } from 'src/helpers/constants';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @ApiTags('auth')
-@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @Public()
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  signIn(@Body() signInDto: LoginDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  async signIn(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
-  @UseGuards(AuthGuard)
   @Version(VERSION_NEUTRAL)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Request() req) {
     return new AccountDto(req.user);

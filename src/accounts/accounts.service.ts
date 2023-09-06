@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Accounts } from '@prisma/client';
-import { PrismaService } from 'src/providers/prisma/prisma.module';
+import { PrismaService } from 'src/providers/prisma/prisma.service';
 
+export type User = any;
 @Injectable()
 export class AccountsService {
   constructor(private prisma: PrismaService) {}

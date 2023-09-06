@@ -8,15 +8,34 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CategoriesModule } from './categories/categories.module';
 import { AdvicesModule } from './advices/advices.module';
-import { PrismaService } from './providers/prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { NotificationsModule } from './notifications/notifications.module';
+import { PrismaModule } from './providers/prisma/prisma.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-  imports: [CategoriesModule, AdvicesModule, AuthModule, AccountsModule],
+  imports: [
+    PrismaModule,
+    CategoriesModule,
+    AdvicesModule,
+    AuthModule,
+    AccountsModule,
+    NotificationsModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: AppService,
+      useClass: AppService,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
